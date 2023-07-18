@@ -1,0 +1,105 @@
+## The configuration in this file was used to set up the nginx server
+
+## change directory to /var/www/html
+## if directory doesn't exist, create it using sudo mkdir /var/www/html
+## in the directory, make another directory that will host your web pages
+
+## the /var/www/hmtl directory tells the nginx server how to render your webpages
+## so your directory should ne something like this /var/www/html/<name_of_directory>
+## in the directory, create an index.html file and upsate it with the contents below or your desired content.
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome Deimos</title>
+    <style>
+        body {
+            text-align: center;
+            padding: 150px;
+        }
+
+        h1 {
+            font-size: 40px;
+        }
+
+        p {
+            font-size: 25px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Deimos internship</h1>
+    <p>Its great to have you on board</p>
+    <p>how do you feel?</p>
+</body>
+</html>
+
+
+
+##### After updating the /var/www directory, change to home directory and
+### cd to /etc/nginx directory where the nginx directory will be configured to suit our use case
+### create a back for the default nginx.conf so we dont loss it
+
+sudo mv nginx.conf nginx_default_backup.conf
+
+### Now, let's change the nginx.conf to suit what we want
+## P.S: Ensure you are in the /etc/nginx directory
+
+### update the nginx.conf file
+sudo nano nginx.conf
+
+### paste this content in the file
+#user nobody;
+
+worker_processes 1;
+
+#error_log logs/erro.log;
+#error_log logs/error.log notice;
+#error_log logs/error.log info;
+
+#pid logs/nginx.pid;
+
+evets {
+    worker_coonections 1024;
+}
+
+http{
+    server {
+        listen 80;
+        # server_name localhost
+
+        location / {
+            root /var/www/html/<name_of_directory>;
+            index index.html index.htm;
+        }
+    }
+}
+
+## run systemctl daemon-reload so that updates will be load
+## then run systemctl restart nginx
+
+## still in the /etc/nginx dirctory
+## cd to sites-available.
+## If doesn't exist, create it
+## your working directory should be /etc/nginx/sites-available
+## create a default file or unlink the existing if there's already
+# run:
+ sudo nano default
+
+## update the file with the contents below:
+server{
+    listen 80 default_server;
+
+    listen [::] 8080 default_server;
+    root /var/www/html/<name_of directory>;
+    index index.htm;
+
+    server_name_;
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+}
+
+
+

@@ -1,0 +1,94 @@
+#cd to the /etc/nginx directory
+#back up the default nginx.conf file and edit the nginx.conf file 
+
+#user nobody;
+
+worker_processes 1;
+
+#error_log logs/erro.log;
+#error_log logs/error.log notice;
+#error_log logs/error.log info;
+
+#pid logs/nginx.pid;
+
+evets {
+    worker_coonections 1024;
+}
+
+http {
+  proxy_connect_timeout 100s; #optimization of servers
+  proxy_send_timeout 100s;
+  proxy_read_timeout 100s;
+
+   include mime.types;
+
+   default_type application/octet-stream;
+   sendfile on;
+
+   keepalive_timeout 65;
+
+
+
+   # Define a new zone to track IP addresses for rate limiting
+    limit_req_zone $binary_remote_addr zone=brute_force:30m rate=30r/s; #brute-force protection
+    limit_conn_zone $binary_remote_addr zone=conn_limit:10m;
+
+
+    #In /etc/nginx/sites-available/default
+
+   # caching path
+   proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=cache:10m inactive=60m; 
+
+   # Several Backend HOST
+ upstream hosts {
+        least_conn;
+        # zone backend 64k;
+        server IP_Address max_fails=3 fail_timeout=10s; #run health checks
+        server IP_Address max_fails=3 fail_timeout=10s;
+      }
+
+   limit_req_zone $binary_remote_addr zone=one:1m rate=30r/m; ##DDoS protection
+   server {
+        listen 80; #default_server;
+        # listen [::]:8000 default_server;
+
+        #server_name _;
+
+         location /login {
+             # Apply rate limiting to the /login endpoint
+              limit_req zone=brute_force burst=20 nodelay;
+              limit_conn conn_limit 1;
+           }
+
+          # ONLY IDEMPOTENT URI IS CACHED
+          location ~ /read/(.*)+/(.*)$  {
+               proxy_pass http://hosts;   # changed
+               proxy_cache cache;
+               proxy_cache_valid any 10m;proxy_cache_valid any 10m;
+               add_header X-Proxy-Cache $upstream_cache_status;
+               # wp_login.php;
+                limit_req zone=one;
+          }
+
+        # The rest of the request is passed (will not be cached)
+           location / {
+                proxy_pass http://hosts;   # changed
+                limit_conn conn_limit 10;
+                if ($args ~ "(?i)(select|union|insert|update|delete|drop)") {
+                    return 403; ##sql injection protection
+                    ##cross-scripting protection
+                add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe->
+                'unsafe-eval'; style-src 'self' 'unsafe-inline';"; 
+               }
+
+               #  health_check interval=10 fails=3 passes=2;
+                limit_req zone=one;
+
+        }
+    }
+
+}
+
+
+
+
