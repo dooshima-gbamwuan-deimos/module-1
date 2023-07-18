@@ -19,7 +19,7 @@ This repo will also walk you through how:
 4. ChatGPT
 
 ### Basic Requirements:
-1. Download a [Virtualbox] (https://www.virtualbox.org/wiki/Downloads)
+1. Download a [Virtualbox](https://www.virtualbox.org/wiki/Downloads)
 2. Using this [guide](https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox#1-overview), install Ubuntu VM on your Virtualbox
 3. Nginx installed on VMs
 4. vs-code
