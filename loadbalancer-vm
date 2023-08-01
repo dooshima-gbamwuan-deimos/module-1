@@ -43,7 +43,7 @@ http {
  upstream hosts {
         least_conn;
         # zone backend 64k;
-        server IP_Address max_fails=3 fail_timeout=10s; #run health checks
+        server IP_Address (IP_address of VM and the port) max_fails=3 fail_timeout=10s; #run health checks
         server IP_Address max_fails=3 fail_timeout=10s;
       }
 
